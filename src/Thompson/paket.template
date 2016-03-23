@@ -1,0 +1,23 @@
+type project
+owners
+    theor
+authors 
+    theor
+projectUrl
+    http://github.com/theor/Thompson
+iconUrl
+    https://raw.githubusercontent.com/theor/Thompson/master/docs/files/img/logo.png
+licenseUrl
+    http://github.com/theor/Thompson/blob/master/LICENSE.txt
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2015
+tags
+    regex automata
+summary
+    Thompson, automatas and regexes
+description
+    Description not set
+
+
