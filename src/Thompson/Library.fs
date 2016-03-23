@@ -53,19 +53,27 @@ module NFA =
                 | Some l -> l
         { n with transitions = n.transitions |> Map.add from ((t,dest) :: l) }
 
+    let addEndState (s:State) (n:NFA) : NFA =
+        { n with ends = s :: n.ends }
+
     let getTransitionsCount (from:State) (n:NFA) =
         match n.transitions |> Map.tryFind from with
         | None -> 0
         | Some l -> List.length l
 
-    let isDone (n:NFA) (state:State) = n.ends |> List.tryFind (fun e -> e = state) |> Option.isSome
+    let isDone (n:NFA) (states:State list) =
+        not << Set.isEmpty <| Set.intersect (Set.ofList n.ends) (Set.ofList states)
 
     let stepState (n:NFA) (o:Opand) (curState:State) : State list =
         match n.transitions |> Map.tryFind curState with
         | None -> curState :: []
         | Some l -> l |> List.choose (fun (c,s) -> if c = o then Some s else None)
+
     let step (n:NFA) (o:Opand) (curStates:State list) : State list =
         curStates |> List.collect (stepState n o)
+
+    let isMatch (n:NFA) (s:string) : bool =
+        s |> Seq.fold (fun s c -> step n (Char c) s) (n.start :: []) |> isDone n
 
 type Automata = RegEx
 
