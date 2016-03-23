@@ -7,8 +7,8 @@ namespace Thompson
 ///     let h = Library.hello 1
 ///     printfn "%d" h
 ///
-module Library = 
-  
+module Library =
+
   /// Returns 42
   ///
   /// ## Parameters
@@ -31,27 +31,41 @@ type State = int
 module NFA =
     open Microsoft.FSharp.Collections
 //    let map = Map.ofSeq [(1,1)]
-    type Transition = char * State
-    type NFA = Map<State,Transition list>
+    type Transition = Opand * State
+    type NFA = { transitions: Map<State,Transition list>
+                 start : State
+                 ends: State list }
 
-    let empty : NFA = Map.empty
+    let empty : NFA =
+        { transitions = Map.empty
+          start = 0
+          ends = [] }
 
-    let getStateCount (n:NFA) = n.Count
-    
+    let getStateCount (n:NFA) = n.transitions.Count
+
     let addState (s:State) (n:NFA) : NFA =
-        if n |> Map.containsKey s then n
-        else n |> Map.add s []
-    
-    let addTransition (from:State) (t:char) (dest:State) (n:NFA) : NFA =
-        let l = match n |> Map.tryFind from with
+        if n.transitions |> Map.containsKey s then n
+        else { n with transitions = n.transitions |> Map.add s [] }
+
+    let addTransition (from:State) (t:Opand) (dest:State) (n:NFA) : NFA =
+        let l = match n.transitions |> Map.tryFind from with
                 | None -> []
                 | Some l -> l
-        n |> Map.add from ((t,dest) :: l)
+        { n with transitions = n.transitions |> Map.add from ((t,dest) :: l) }
 
     let getTransitionsCount (from:State) (n:NFA) =
-        match n |> Map.tryFind from with
+        match n.transitions |> Map.tryFind from with
         | None -> 0
         | Some l -> List.length l
+
+    let isDone (n:NFA) (state:State) = n.ends |> List.tryFind (fun e -> e = state) |> Option.isSome
+
+    let stepState (n:NFA) (o:Opand) (curState:State) : State list =
+        match n.transitions |> Map.tryFind curState with
+        | None -> curState :: []
+        | Some l -> l |> List.choose (fun (c,s) -> if c = o then Some s else None)
+    let step (n:NFA) (o:Opand) (curStates:State list) : State list =
+        curStates |> List.collect (stepState n o)
 
 type Automata = RegEx
 
