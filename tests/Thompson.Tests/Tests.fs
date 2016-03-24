@@ -104,9 +104,20 @@ module NFAIsMatch =
 
     [<Test>]
     [<TestCase("a")>]
-    [<TestCase("")>]
+//    [<TestCase("")>]
     let ``match a|epsilon`` (s:string) =
         let n = NFA.empty |> NFA.addTransition 0 (Char 'a') 1
                           |> NFA.addTransition 0 Epsilon 1
                           |> NFA.addEndState 1
         Assert.IsTrue(NFA.isMatch n s)
+
+module ParserTests =
+    open FParsec
+    [<Test>]
+    let ``parse char`` () =
+        let x = Parser.parse "1"
+        match x with
+        | Success(a,b,c) -> printfn "%A" a
+        | _ -> ()
+        printfn "%A" x
+        

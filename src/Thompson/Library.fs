@@ -77,7 +77,7 @@ module NFA =
 
 type Automata = RegEx
 
-module Parser =
+module Automatas =
     let parse (s:string) : RegEx =
         Val Null
 
@@ -99,3 +99,9 @@ module Parser =
         //If the operand is a character c, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and a transition from s0 to sF with label c.
         //If the operand is epsilon, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and an epsilon transition from s0 to sF.
         //If the operand is null, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and no transitions.
+
+module Parser = 
+    open FParsec
+    let parse s =
+        let p = pfloat
+        FParsec.CharParsers.run p s
