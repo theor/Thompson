@@ -1,6 +1,7 @@
 group Test
-NUnit
-NUnit.Runners
+	NUnit
+	NUnit.Runners
+	File:FsUnitTyped.fs
 
 group Build
-FParsec
+	FParsec

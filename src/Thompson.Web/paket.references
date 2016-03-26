@@ -1,2 +1,5 @@
 group UI
-Suave
+	Suave
+	Newtonsoft.Json
+group Build
+	FParsec

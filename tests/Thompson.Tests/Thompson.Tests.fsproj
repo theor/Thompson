@@ -55,6 +55,10 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
+    <Compile Include="..\..\paket-files\test\fsprojects\FsUnit\src\FsUnit.NUnit\FsUnitTyped.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/FsUnitTyped.fs</Link>
+    </Compile>
     <Compile Include="Tests.fs" />
     <None Include="paket.references" />
   </ItemGroup>

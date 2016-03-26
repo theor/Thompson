@@ -32,11 +32,15 @@ NUGET
   specs:
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-
+GITHUB
+  remote: fsprojects/FsUnit
+  specs:
+    src/FsUnit.NUnit/FsUnitTyped.fs (db5644485efee6a228fe3d3f85903a3524b5f32c)
 GROUP UI
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
     FSharp.Core (4.0.0.1)
+    Newtonsoft.Json (8.0.3)
     Suave (1.1.1)
       FSharp.Core (>= 3.1.2.5)
