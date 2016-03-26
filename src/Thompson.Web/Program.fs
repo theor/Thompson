@@ -7,14 +7,16 @@ open Suave.Operators
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open Thompson
+open Thompson.Regex
+open Thompson.Automata
 
-let nfaToJson (nfa:NFA.NFA option) =
+let nfaToJson (nfa:NFA option) =
     let mapOpand (o:Opand) =
         match o with
         | Char c -> Some c
         | _ -> None
 
-    let mapTransition (f:State,l:NFA.Transition list) =
+    let mapTransition (f:State,l:Transition list) =
         l |> List.map (fun (c,t) ->
             let o = new JObject(
                 JProperty("from", f),
