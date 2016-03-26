@@ -10,16 +10,16 @@ open Thompson
 open Thompson.Regex
 open Thompson.Automata
 
-let nfaToJson (nfa:NFA option) =
+let nfaToJson (nfa:FSM<_> option) =
     let mapOpand (o:Opand) =
         match o with
         | Char c -> Some c
         | _ -> None
 
-    let mapTransition (f:State,l:Transition list) =
+    let mapTransition (f:_,l:Transition<_> list) =
         l |> List.map (fun (c,t) ->
             let o = new JObject(
-                JProperty("from", f),
+                JProperty("from", f :> obj),
                 JProperty("to", t)
             )
             match mapOpand c with
@@ -69,7 +69,7 @@ let webPart nfa =
 
 [<EntryPoint>]
 let main argv = 
-//    let nfa = NFA.empty
+//    let nfa = Automata.emptyNFA
 //              |> NFA.addTransition 0 Epsilon 1
 //              |> NFA.addTransition 1 (Char 'a') 2
 //              |> NFA.addTransition 2 Epsilon 5

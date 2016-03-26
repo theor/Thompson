@@ -7,14 +7,14 @@ module Automatas =
 
     let opandToNFA (o:Opand) : Automata.NFA option =
         match o with
-        | Char _ | Epsilon -> Automata.empty |> Automata.addTransition 0 o 1 |> Some
+        | Char _ | Epsilon -> Automata.emptyNFA |> Automata.addTransition 0 o 1 |> Some
 //        | Var v -> None
         | _ -> None
 
     let toNFA (r:RegEx) : Automata.NFA option =
         let rec toNFA_rec (n:int) (r:RegEx) : Automata.NFA option =
             match r with
-            | Val v -> Automata.empty |> Automata.addTransition n v (n+1) |> Automata.addEndState (n+1) |> Some
+            | Val v -> Automata.emptyNFA |> Automata.addTransition n v (n+1) |> Automata.addEndState (n+1) |> Some
             | Union(a, b) ->
                 let na = toNFA_rec (n+1) a
                 let naEnd = (na.Value.ends.Head)
@@ -22,7 +22,7 @@ module Automatas =
                 let nb = toNFA_rec nbStart b
                 let nbEnd = (nb.Value.ends.Head)
 
-                Automata.empty
+                Automata.emptyNFA
                 |> Automata.addSubNfa na.Value
                 |> Automata.addSubNfa nb.Value
                 |> Automata.addTransition n Epsilon (n+1)
@@ -35,7 +35,7 @@ module Automatas =
                 let na = toNFA_rec (n) a
                 let nbStart = (na.Value.ends.Head)
                 let nb = toNFA_rec nbStart b
-                Automata.empty
+                Automata.emptyNFA
                 |> Automata.addSubNfa na.Value
                 |> Automata.addSubNfa nb.Value
                 |> Automata.addEndState (nb.Value.ends.Head)
@@ -47,7 +47,7 @@ module Automatas =
             | Kleene o -> 
                 let nfa = toNFA_rec (n+1) o
                 let nEnd = nfa.Value.ends.Head
-                Automata.empty
+                Automata.emptyNFA
                 |> Automata.addSubNfa nfa.Value
                 |> Automata.addTransition n Epsilon (n+1)
                 |> Automata.addTransition nEnd Epsilon (nEnd+1)
