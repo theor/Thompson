@@ -50,6 +50,106 @@ module CreateNFA =
         let nfa = Automata.emptyNFA |> Automata.addEndState 42
         Assert.IsFalse(Automata.isDone nfa [7])
 
+module Closure =
+    [<Test>]
+    let ``direct eps closure`` () =
+        let nfa = Automata.emptyNFA |> Automata.addTransition 0 Epsilon 1  |> Automata.addTransition 0 Epsilon 2
+        let closure = Automatas.closure nfa 0 Epsilon
+        closure |> shouldEqual (Set([0;1;2]))
+        
+    [<Test>]
+    let ``indirect eps closure`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 Epsilon 1
+                  |> Automata.addTransition 0 Epsilon 2
+                  |> Automata.addTransition 2 Epsilon 3
+        let closure = Automatas.closure nfa 0 Epsilon
+        closure |> shouldEqual (Set([0;1;2;3]))
+        
+    [<Test>]
+    let ``indirect eps closure 3 levels`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 Epsilon 1
+                  |> Automata.addTransition 0 Epsilon 2
+                  |> Automata.addTransition 2 Epsilon 3
+                  |> Automata.addTransition 3 Epsilon 4
+        let closure = Automatas.closure nfa 0 Epsilon
+        closure |> shouldEqual (Set([0;1;2;3;4]))
+        
+    [<Test>]
+    let ``direct a closure`` () =
+        let nfa = Automata.emptyNFA |> Automata.addTransition 0 (Char 'a') 1  |> Automata.addTransition 0 (Char 'a') 2
+        let closure = Automatas.closure nfa 0 (Char 'a')
+        closure |> shouldEqual (Set([1;2]))
+        
+    [<Test>]
+    let ``indirect a closure`` () =
+        let nfa = Automata.emptyNFA |> Automata.addTransition 0 (Char 'a') 1  |> Automata.addTransition 1 (Char 'a') 2
+        let closure = Automatas.closure nfa 0 (Char 'a')
+        closure |> shouldEqual (Set([1]))
+
+module EpsilonRemoval =
+    let test nfa expNfa =
+        nfa |> Automatas.epsilonRemoval |> shouldEqual (Some(expNfa))
+    [<Test>]
+    let ``a*`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.setInitState 0
+                  |> Automata.addTransition 0 (Char 'a') 0
+                  |> Automata.addTransition 0 Epsilon 1
+                  |> Automata.addEndState 1
+        let expNfa = Automata.emptyNFA
+                  |> Automata.setInitState 0
+                  |> Automata.addTransition 0 (Char 'a') 0
+                  |> Automata.addTransition 0 (Char 'a') 1
+                  |> Automata.addEndState 0
+                  |> Automata.addEndState 1
+        test nfa expNfa
+    [<Test>]
+    let ``ab*`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 (Char 'a') 1
+                  |> Automata.addTransition 1 (Char 'b') 1
+                  |> Automata.addTransition 1 Epsilon 2
+                  |> Automata.addEndState 2
+        let expNfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 (Char 'a') 1
+                  |> Automata.addTransition 1 (Char 'b') 1
+                  |> Automata.addTransition 1 (Char 'b') 2
+                  |> Automata.addTransition 0 (Char 'a') 2
+                  |> Automata.addEndState 2
+        test nfa expNfa
+    
+module ToDFA =
+    let test nfa expDfa =
+        nfa |> Automatas.toDFA |> shouldEqual (Some(expDfa))
+        
+    [<Test>]
+    let ``one transition dfa`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 Epsilon 1
+                  |> Automata.addEndState 1
+        let s = Set([0;1])
+        let expDfa = Automata.emptyDFA
+                     |> Automata.setInitState s
+                     |> Automata.addEndState s
+        test nfa expDfa
+
+    [<Test>]
+    let ``2 transition dfa`` () =
+        let nfa = Automata.emptyNFA
+                  |> Automata.addTransition 0 Epsilon 1
+                  |> Automata.addTransition 0 (Char 'a') 2
+                  |> Automata.addTransition 1 (Char 'a') 3
+                  |> Automata.addEndState 2
+        let s01 = Set([0;1])
+        let s23 = Set([2;3])
+        let expDfa = Automata.emptyDFA
+                     |> Automata.addTransition s01 (Char 'a') s23
+                     |> Automata.setInitState s01
+                     |> Automata.addEndState s23
+        test nfa expDfa
+
 module NFAStep =
 
     [<Test>]
@@ -226,5 +326,7 @@ module ParserTests =
         test "ab|abc" (Union(
                         Concat(c 'a', c 'b'),
                         Concat(Concat(c 'a', c 'b'), c 'c')))
+
+
 
         

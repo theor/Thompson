@@ -61,5 +61,44 @@ module Automatas =
         //If the operand is epsilon, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and an epsilon transition from s0 to sF.
         //If the operand is null, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and no transitions.
         
-    let toDFA (nfa:Automata.NFA) : Automata.NFA option =
+    let rec closure(fsm:Automata.FSM<_>)(state:_)(op:Opand) : Set<_> =
+        
+        let newStates = (if op = Epsilon then [state] else []) @
+            Automata.stepState fsm op state |> Set
+        if op = Epsilon then
+            Set.unionMany (newStates :: (Seq.choose (fun s -> if s = state then None else Some(closure fsm s op |> Set)) newStates |> Seq.toList))
+        else
+            Set(newStates)
+
+    let epsilonRemoval(enfa:Automata.FSM<_>) : Automata.FSM<_> option =
+//        let _m = enfa.transitions |> Map.filter (fun f (c,t) -> true)
         None
+
+    let toDFA (nfa:Automata.NFA) : Automata.DFA option =
+        let rec toDFA_rec (nfa:Automata.NFA) (states:Set<int>) (dfa:Automata.DFA) =
+            let allTransitions =
+                states |> Seq.choose (fun i -> Map.tryFind i nfa.transitions)
+                       |> Seq.collect id
+                       |> Seq.filter (fun (c,_) -> c <> Epsilon) // use closure on eps
+            let opandToTarget = allTransitions |> Seq.groupBy (fun (c,_) -> c)
+            let fold dfa (op, ts) =
+                let nextStates = ts |> Seq.map snd
+                                    //|> Seq.collect (fun ns -> closure nfa ns Epsilon)
+                                    |> Set
+                let dfa = dfa |> Automata.addTransition states op nextStates
+                              |> toDFA_rec nfa nextStates
+                if nextStates |> Automata.isDone nfa then
+                    dfa |> Automata.addEndState nextStates
+                else
+                    dfa
+            opandToTarget |> Seq.fold fold dfa
+//            let closures = states |> Seq.map 
+        let init = closure nfa nfa.start Epsilon
+        let dfa = Automata.emptyDFA
+                  |> Automata.setInitState init
+//                  |> Automata.addEndState init
+                  |> toDFA_rec nfa init
+        if dfa.ends.IsEmpty then
+            dfa |> Automata.addEndState init |> Some
+        else
+            dfa |> Some

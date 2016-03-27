@@ -27,6 +27,9 @@ module Automata =
         if n.transitions |> Map.containsKey s then n
         else { n with transitions = n.transitions |> Map.add s [] }
 
+    let setInitState<'T when 'T:comparison> (s:'T) (n:FSM<'T>) : FSM<'T> =
+        { n with start = s }
+
     let addTransition<'T when 'T:comparison> (from:'T) (t:Opand) (dest:'T) (n:FSM<'T>) : FSM<'T> =
         let l = match n.transitions |> Map.tryFind from with
                 | None -> []
@@ -47,8 +50,8 @@ module Automata =
         | None -> 0
         | Some l -> List.length l
 
-    let isDone (n:FSM<_>) (states:_ list) =
-        not << Set.isEmpty <| Set.intersect (Set.ofList n.ends) (Set.ofList states)
+    let isDone (n:FSM<_>) (states:_ seq) =
+        not << Set.isEmpty <| Set.intersect (Set.ofList n.ends) (Set.ofSeq states)
 
     let stepState (n:FSM<_>) (o:Opand) (curState:_) : _ list =
         match n.transitions |> Map.tryFind curState with
