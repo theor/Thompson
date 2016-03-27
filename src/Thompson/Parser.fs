@@ -22,7 +22,8 @@ module FParsecTrace =
         let msgPadLen = 50
 
         let startIndent = stream.UserState.Debug.Indent
-        let (str, curIndent, nextIndent) = match dtype with
+        let (str, curIndent, nextIndent) =
+            match dtype with
             | Enter    -> sprintf "Entering %s" label, startIndent, startIndent+1
             | Leave res ->
                 let str = sprintf "Leaving  %s (%A)" label res.Status

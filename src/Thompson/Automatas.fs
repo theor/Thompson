@@ -2,7 +2,7 @@ namespace Thompson
 
 module Automatas =
     open Regex
-    let parse (s:string) : RegEx =
+    let parse (_:string) : RegEx =
         Val Null
 
     let opandToNFA (o:Opand) : Automata.NFA option =
@@ -55,7 +55,7 @@ module Automatas =
                 |> Automata.addTransition nEnd Epsilon (n+1)
                 |> Automata.addEndState (nEnd+1)
                 |> Some
-            | _ -> None
+//            | _ -> None
         toNFA_rec 0 r
         //If the operand is a character c, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and a transition from s0 to sF with label c.
         //If the operand is epsilon, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and an epsilon transition from s0 to sF.
@@ -63,7 +63,8 @@ module Automatas =
         
     let rec closure(fsm:Automata.FSM<_>)(state:_)(op:Opand) : Set<_> =
         
-        let newStates = (if op = Epsilon then [state] else []) @
+        let newStates =
+            (if op = Epsilon then [state] else []) @
             Automata.stepState fsm op state |> Set
         if op = Epsilon then
             Set.unionMany (newStates :: (Seq.choose (fun s -> if s = state then None else Some(closure fsm s op |> Set)) newStates |> Seq.toList))
@@ -77,8 +78,7 @@ module Automatas =
     let toDFA (nfa:Automata.NFA) : Automata.DFA option =
         let rec toDFA_rec (nfa:Automata.NFA) (states:Set<int>) (dfa:Automata.DFA) =
             let allTransitions =
-                states |> Seq.choose (fun i -> Map.tryFind i nfa.transitions)
-                       |> Seq.collect id
+                states |> Seq.collect (fun i -> Automata.getTransitionsFrom i nfa)
                        |> Seq.filter (fun (c,_) -> c <> Epsilon) // use closure on eps
             let opandToTarget = allTransitions |> Seq.groupBy (fun (c,_) -> c)
             let fold dfa (op, ts) =

@@ -6,36 +6,36 @@ open NUnit.Framework
 open FsUnitTyped
 
 module CreateDFA =
-    [<Test>]
-    let ``add state to dfa`` () =
-        let nfa = Automata.emptyDFA |> Automata.addState (Set([1;2])) |> Automata.addState (Set([1;3]))
-        Assert.AreEqual(2, nfa |> Automata.getStateCount)
+//    [<Test>]
+//    let ``add state to dfa`` () =
+//        let nfa = Automata.emptyDFA |> Automata.addState (Set([1;2])) |> Automata.addState (Set([1;3]))
+//        Assert.AreEqual(2, nfa |> Automata.getStateCount)
     [<Test>]
     let ``add transitions to dfa`` () =
         let nfa = Automata.emptyDFA |> Automata.addTransition (Set([1;2])) (Char 'a') (Set([1;3]))
-        Assert.AreEqual(2, nfa |> Automata.getStateCount)
+//        Assert.AreEqual(2, nfa |> Automata.getStateCount)
         Automata.getTransitionsCount (Set[1;2])
 
 module CreateNFA =
 
-    [<Test>]
-    let ``add state to nfa`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 2
-        Assert.AreEqual(2, nfa |> Automata.getStateCount)
-
-    [<Test>]
-    let ``add state twice to nfa`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 1
-        Assert.AreEqual(1, nfa |> Automata.getStateCount)
+//    [<Test>]
+//    let ``add state to nfa`` () =
+//        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 2
+//        Assert.AreEqual(2, nfa |> Automata.getStateCount)
+//
+//    [<Test>]
+//    let ``add state twice to nfa`` () =
+//        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 1
+//        Assert.AreEqual(1, nfa |> Automata.getStateCount)
 
     [<Test>]
     let ``add transition to nfa`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 2 |> Automata.addTransition 1 (Char 'a') 2
+        let nfa = Automata.emptyNFA |> Automata.addTransition 1 (Char 'a') 2
         Assert.AreEqual(1, nfa |> Automata.getTransitionsCount 1)
 
     [<Test>]
     let ``add 2 transitions to nfa`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 1 |> Automata.addState 2
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 1 (Char 'a') 2
                   |> Automata.addTransition 1 (Char 'b') 2
         Assert.AreEqual(2, nfa |> Automata.getTransitionsCount 1)
@@ -154,7 +154,7 @@ module NFAStep =
 
     [<Test>]
     let ``step char transition should change state`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 0 |> Automata.addState 1
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 0 (Char 'a') 1
                   |> Automata.addTransition 0 (Char 'b') 2
         let init = nfa.start
@@ -163,7 +163,7 @@ module NFAStep =
 
     [<Test>]
     let ``step 2nd char transition should change state`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 0 |> Automata.addState 1
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 0 (Char 'a') 1
                   |> Automata.addTransition 0 (Char 'b') 2
         let init = nfa.start
@@ -172,7 +172,7 @@ module NFAStep =
 
     [<Test>]
     let ``step epsilon transition should change state`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 0 |> Automata.addState 1
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 0 (Char 'a') 1
                   |> Automata.addTransition 0 Epsilon 2
         let init = nfa.start
@@ -181,7 +181,7 @@ module NFAStep =
 
     [<Test>]
     let ``step two epsilon transition should change state`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 0 |> Automata.addState 1
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 0 Epsilon 1
                   |> Automata.addTransition 0 Epsilon 2
         let init = nfa.start
@@ -190,7 +190,7 @@ module NFAStep =
 
     [<Test>]
     let ``step two epsilon transition twice should yield four states`` () =
-        let nfa = Automata.emptyNFA |> Automata.addState 0 |> Automata.addState 1
+        let nfa = Automata.emptyNFA
                   |> Automata.addTransition 0 Epsilon 1
                   |> Automata.addTransition 1 Epsilon 10
                   |> Automata.addTransition 1 Epsilon 11

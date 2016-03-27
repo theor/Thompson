@@ -16,11 +16,11 @@ let nfaToJson (nfa:FSM<_> option) =
         | Char c -> Some c
         | _ -> None
 
-    let mapTransition (f:_,l:Transition<_> list) =
-        l |> List.map (fun (c,t) ->
+    let mapTransition ((f,c),l:_ list) =
+        l |> List.map (fun t ->
             let o = new JObject(
-                JProperty("from", f :> obj),
-                JProperty("to", t)
+                        JProperty("from", f :> obj),
+                        JProperty("to", t :> obj)
             )
             match mapOpand c with
             | Some opand -> o.Add(JProperty("label", opand.ToString()))
