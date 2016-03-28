@@ -1,4 +1,4 @@
-module Thompson.Tests
+namespace Thompson.Tests
 
 open Thompson
 open Thompson.Regex

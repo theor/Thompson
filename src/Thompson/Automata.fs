@@ -59,5 +59,17 @@ module Automata =
     let step (n:FSM<_>) (o:Opand) (curStates:_ list) : _ list =
         curStates |> List.collect (stepState n o)
 
+    let stepDFA (d:DFA) (o:Opand) (s:_) : _ option =
+        match d.transitions |> Map.tryFind (s,o) with
+        | None -> None
+        | Some (x :: []) -> Some x
+        | Some l -> failwithf "Non deterministic, transition %A,%A has multiple target states: %A" s o l
+
+    let isMatchDFA (n:DFA) (s:string) : bool =
+        let folded = s |> Seq.fold (fun s c -> s |> Option.bind (stepDFA n (Char c))) (Some n.start)
+        match folded with
+        | None -> false
+        | Some(s) ->  [s] |> isDone n
+        
     let isMatch (n:FSM<_>) (s:string) : bool =
         s |> Seq.fold (fun s c -> step n (Char c) s) (n.start :: []) |> isDone n

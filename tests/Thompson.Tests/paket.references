@@ -2,6 +2,7 @@ group Test
 	NUnit
 	NUnit.Runners
 	File:FsUnitTyped.fs
+	FsCheck.Nunit
 
 group Build
 	FParsec

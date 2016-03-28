@@ -21,5 +21,6 @@ group Test
   
   nuget NUnit ~> 2
   nuget NUnit.Runners ~> 2
+  nuget FsCheck.Nunit
 
   github fsprojects/FsUnit src/FsUnit.NUnit/FsUnitTyped.fs
