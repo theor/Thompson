@@ -17,10 +17,10 @@ module Automatas =
             | Val v -> Automata.emptyNFA |> Automata.addTransition n v (n+1) |> Automata.addEndState (n+1) |> Some
             | Union(a, b) ->
                 let na = toNFA_rec (n+1) a
-                let naEnd = (na.Value.ends.Head)
+                let naEnd = (na.Value.ends |> Set.maxElement)
                 let nbStart = (naEnd + 1)
                 let nb = toNFA_rec nbStart b
-                let nbEnd = (nb.Value.ends.Head)
+                let nbEnd = (nb.Value.ends |> Set.maxElement)
 
                 Automata.emptyNFA
                 |> Automata.addSubNfa na.Value
@@ -33,12 +33,12 @@ module Automatas =
                 |> Some
             | Concat(a, b) ->
                 let na = toNFA_rec (n) a
-                let nbStart = (na.Value.ends.Head)
+                let nbStart = (na.Value.ends |> Set.maxElement)
                 let nb = toNFA_rec nbStart b
                 Automata.emptyNFA
                 |> Automata.addSubNfa na.Value
                 |> Automata.addSubNfa nb.Value
-                |> Automata.addEndState (nb.Value.ends.Head)
+                |> Automata.addEndState (nb.Value.ends |> Set.maxElement)
                 |> Some
             (* n -> (nfaStart -> nfaEnd) -> nfaEnd + 1
                n -> nfaEnd + 1
@@ -46,7 +46,7 @@ module Automatas =
             *)
             | Kleene o -> 
                 let nfa = toNFA_rec (n+1) o
-                let nEnd = nfa.Value.ends.Head
+                let nEnd = nfa.Value.ends |> Set.maxElement
                 Automata.emptyNFA
                 |> Automata.addSubNfa nfa.Value
                 |> Automata.addTransition n Epsilon (n+1)

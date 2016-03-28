@@ -11,6 +11,11 @@ open Thompson.Regex
 open Thompson.Automata
 
 let nfaToJson (nfa:FSM<_> option) =
+    let mapend ends =
+        ends |> Seq.map (fun x ->
+            let v = match box x with | :? Set<int> as s -> JArray(s) :> JToken | _ as o -> JValue(o) :> JToken
+            v)
+             |> JArray
     let mapOpand (o:Opand) =
         match o with
         | Char c -> Some c
@@ -31,7 +36,7 @@ let nfaToJson (nfa:FSM<_> option) =
     | Some nfa ->
         JObject(
             JProperty("start", nfa.start),
-            JProperty("ends", nfa.ends),
+            JProperty("ends", new JArray(mapend nfa.ends)),
             JProperty("transitions",
                 JArray(nfa.transitions |> Map.toList |> List.collect mapTransition))
         )

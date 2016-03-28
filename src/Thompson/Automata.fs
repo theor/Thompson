@@ -6,7 +6,7 @@ module Automata =
 //    let map = Map.ofSeq [(1,1)]
     type FSM<'T when 'T:comparison> = { transitions: Map<'T * Opand,'T list>
                                         start : 'T
-                                        ends: 'T list }
+                                        ends: Set<'T> }
     type NFA = FSM<int>
     type DFA = FSM<Set<int>>
 //        with
@@ -14,11 +14,11 @@ module Automata =
     let emptyNFA : NFA =
         { transitions = Map.empty
           start = 0
-          ends = [] }
+          ends = Set([]) }
     let emptyDFA : DFA =
         { transitions = Map.empty
           start = Set([])
-          ends = [] }
+          ends = Set([]) }
 
 //    let getStateCount(n:FSM<_>) = n.transitions.Count
 
@@ -41,7 +41,7 @@ module Automata =
         |> List.fold(fun s ((fromS,op),toS) -> s |> addTransition fromS op toS) n
 
     let addEndState (s) (n:FSM<_>) : FSM<_> =
-        { n with ends = s :: n.ends }
+        { n with ends = n.ends |> Set.add s }
         
     let getTransitionsFrom<'T when 'T:comparison> (n:FSM<'T>) (from:'T) =
         n.transitions |> Map.filter (fun (f,_) _ -> f = from) |> Map.toList |> List.collect (fun ((_,o),tl) -> tl |> List.map (fun t -> (o,t)))
@@ -49,7 +49,7 @@ module Automata =
     let getTransitionsCount<'T when 'T:comparison> (n:FSM<'T>) (from:'T) = getTransitionsFrom n from |> List.length
 
     let isDone (n:FSM<_>) (states:_ seq) =
-        not << Set.isEmpty <| Set.intersect (Set.ofList n.ends) (Set.ofSeq states)
+        not << Set.isEmpty <| Set.intersect n.ends (Set.ofSeq states)
 
     let stepState (n:FSM<_>) (o:Opand) (curState:_) : _ list =
         match n.transitions |> Map.tryFind (curState,o) with
