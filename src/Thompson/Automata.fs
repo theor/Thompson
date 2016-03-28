@@ -43,9 +43,10 @@ module Automata =
     let addEndState (s) (n:FSM<_>) : FSM<_> =
         { n with ends = s :: n.ends }
         
-    let getTransitionsFrom<'T when 'T:comparison> (from:'T) (n:FSM<'T>) =
+    let getTransitionsFrom<'T when 'T:comparison> (n:FSM<'T>) (from:'T) =
         n.transitions |> Map.filter (fun (f,_) _ -> f = from) |> Map.toList |> List.collect (fun ((_,o),tl) -> tl |> List.map (fun t -> (o,t)))
-    let getTransitionsCount<'T when 'T:comparison> (from:'T) = getTransitionsFrom from >> List.length
+
+    let getTransitionsCount<'T when 'T:comparison> (n:FSM<'T>) (from:'T) = getTransitionsFrom n from |> List.length
 
     let isDone (n:FSM<_>) (states:_ seq) =
         not << Set.isEmpty <| Set.intersect (Set.ofList n.ends) (Set.ofSeq states)

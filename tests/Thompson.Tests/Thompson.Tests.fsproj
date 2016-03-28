@@ -59,7 +59,12 @@
       <Paket>True</Paket>
       <Link>paket-files/FsUnitTyped.fs</Link>
     </Compile>
+    <Compile Include="CreateNFATests.fs" />
+    <Compile Include="ClosureTests.fs" />
+    <Compile Include="RegexToNFATests.fs" />
+    <Compile Include="EpsilonRemovalTests.fs" />
     <Compile Include="Tests.fs" />
+    <Compile Include="ParserTests.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

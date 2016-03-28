@@ -71,14 +71,57 @@ module Automatas =
         else
             Set(newStates)
 
-    let epsilonRemoval(enfa:Automata.FSM<_>) : Automata.FSM<_> option =
-//        let _m = enfa.transitions |> Map.filter (fun f (c,t) -> true)
-        None
+    let epsilonRemoval(enfa:Automata.NFA) : Automata.FSM<_> option =
+//        let rec epsilonRemoval_rec(enfa:Automata.NFA) statesDone (states:Set<_>) nfa : Automata.FSM<_> option =
+//            printfn "states: %A done %A" states statesDone
+//            let allTransitions =
+//                states |> Seq.collect (fun i -> Automata.getTransitionsFrom i enfa)
+//                       |> Seq.filter (fun (c,_) -> c <> Epsilon) // use closure on eps
+//                       |> Seq.groupBy fst
+//                       |> Seq.map (fun (op, opStateList) -> (op, opStateList |> Seq.map snd |> Seq.map (fun l -> closure enfa l op) |> Set.unionMany))
+//            let newNfa = allTransitions
+//                         |> Seq.fold (fun a (op,toStates) -> a |> Automata.addTransition states op toStates ) nfa
+//            let newNfaRec,_ = allTransitions
+//                            |> Seq.filter (fun (_,toStates) -> not <| Set.contains toStates statesDone)
+//                            |> Seq.fold (fun (a,set) (_,toStates) ->
+//                                let newSet = (set |> Set.add toStates)
+//                                (epsilonRemoval_rec enfa newSet toStates a |> Option.get),newSet) (newNfa,statesDone)
+//
+//            newNfaRec |> Some
+        let folder (states:Set<_>) a (op,set) =
+            let a = a |> Automata.addTransition states op set
+            if Automata.isDone enfa set then
+                a |> Automata.addEndState set
+            else a
+        let rec epsilonRemoval_rec (sdone:Set<_>) (enfa:Automata.NFA) (states:Set<_>) nfa : Automata.FSM<_> option =
+            let findReachables op =
+                let tos = states |> Seq.choose (fun s -> enfa.transitions |> Map.tryFind (s,op))
+                op, tos
+                    |> Seq.collect id
+                    |> Seq.map(fun s -> closure enfa s Epsilon)
+                    |> Set.unionMany
+                    
+            let ops = states |> Seq.collect (Automata.getTransitionsFrom enfa)
+                             |> Seq.map fst
+                             |> Seq.distinct
+                             |> Seq.filter (fun op -> op <> Epsilon)
+
+            let reachable = ops |> Seq.map findReachables
+
+            let nfaWithT = reachable |> Seq.fold (folder states) nfa
+            let sdone = sdone |> Set.add states
+            reachable |> Seq.fold (fun a (_,x) -> if sdone.Contains x then a else (epsilonRemoval_rec sdone enfa x a |> Option.get)) nfaWithT
+                      |> Some
+
+//            reachable |> ignore
+//            nfa |> Some
+        let init = closure enfa enfa.start Epsilon
+        epsilonRemoval_rec (Set []) enfa init (Automata.emptyDFA |> Automata.setInitState init)
 
     let toDFA (nfa:Automata.NFA) : Automata.DFA option =
         let rec toDFA_rec (nfa:Automata.NFA) (states:Set<int>) (dfa:Automata.DFA) =
             let allTransitions =
-                states |> Seq.collect (fun i -> Automata.getTransitionsFrom i nfa)
+                states |> Seq.collect (Automata.getTransitionsFrom nfa)
                        |> Seq.filter (fun (c,_) -> c <> Epsilon) // use closure on eps
             let opandToTarget = allTransitions |> Seq.groupBy (fun (c,_) -> c)
             let fold dfa (op, ts) =

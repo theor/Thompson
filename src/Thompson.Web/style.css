@@ -71,15 +71,18 @@ svg {
     margin-right: 4px;
 }
 
-.live.map .running .status {
+.live.map .start .status {
     background-color: #7f7;
 }
 
 .live.map .running.warn .status {
     background-color: #ffed68;
 }
+.live.map .state .status {
+    background-color: #ccc;
+}
 
-.live.map .stopped .status {
+.live.map .end .status {
     background-color: #f77;
 }
 

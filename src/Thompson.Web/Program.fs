@@ -55,7 +55,7 @@ let webPart nfa =
             match r with
             | FParsec.CharParsers.ParserResult.Success(a,b,c) ->
                 let nfa = Automatas.toNFA a
-                let dfa = nfa |> Option.bind Automatas.toDFA
+                let dfa = nfa |> Option.bind Automatas.epsilonRemoval
                 JObject(JProperty("nfa", nfaToJson nfa),
                         JProperty("dfa", nfaToJson dfa))
                 |> JSON

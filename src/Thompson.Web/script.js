@@ -47,8 +47,13 @@ function draw(graph, svgid) {
         nodes.add(t[id].to);
         console.log(t[id].from + " -> " + t[id].to);
     }
+    var eq = function(a, b) {
+        if (a instanceof Array)
+            return _.isEqual(a,b);
+        return a === b;
+    };
     for(let node of nodes) {
-        var className = /* worker.consumers ? */"running"/* : "stopped"*/;
+        var className = eq(graph.start, node) ? "start" : (_.some(graph.ends, function (e) { return eq(e, node); }) ? "end" : "state");
         var html = "<div>";
         html += "<span class=status></span>";
     //html += "<span class=consumers>" + node + "</span>";
