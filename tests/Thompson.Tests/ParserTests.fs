@@ -18,17 +18,18 @@ type Tcs() =
                             Concat(Concat(c 'a', c 'b'), c 'c'))) |]
             [| "a\\+"; (Concat(c 'a', c '+')) |]
             [| "a\\*"; (Concat(c 'a', c '*')) |]
+            [| "a(b|c)"; (Concat(c 'a', Union(c 'b', c 'c'))) |]
 
         |]
 let test str expRegex =
     match Parser.parse str with
-    | Success (op,_,pos) -> 
+    | Success (op,_,pos) ->
         printfn "%A" op
         printfn "%s" (Op.format op)
         op |> shouldEqual expRegex
     | Failure(s,error,_) -> Assert.Fail(error.ToString())
 
-    
+
 [<TestCaseSource(typedefof<Tcs>, "tcs")>]
 let testParseAst(str:string, ast:Op) =
     test str ast

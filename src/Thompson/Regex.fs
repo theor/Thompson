@@ -5,11 +5,13 @@ module Regex =
     type Opand =
         | Char of char
         | Var of string
+        | Any
         | Epsilon
         | Null
         static member format (op:Opand) =
             match op with
             | Char c -> if List.exists (fun x -> x = c) metaChars then "\\" + c.ToString() else c.ToString()
+            | Any -> "."
             | Epsilon -> "\u03b5"
             | Null -> "\u2205"
             | Var s -> "\\" + s

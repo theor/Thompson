@@ -148,7 +148,7 @@ module Automatas =
 
     let regexStringToDfa s =
         match Parser.parse(s) with
-        | FParsec.CharParsers.Success (a,b,c) -> a |> toNFA |> Option.bind epsilonRemoval
+        | FParsec.CharParsers.Success (a,_b,_c) -> a |> toNFA |> Option.bind epsilonRemoval
         | _ -> None
 
     type Regex(s:string) =

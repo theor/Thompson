@@ -50,7 +50,7 @@ let JSON v =
   |> Successful.OK
   >=> Writers.setMimeType "application/json; charset=utf-8"
 
-let webPart nfa = 
+let webPart nfa =
     choose [
         path "/data.json" >=> GET >=> JSON(nfaToJson nfa)
         path "/about" >=> (Successful.OK "Abount")
@@ -66,6 +66,7 @@ let webPart nfa =
                 |> JSON
             | _ -> Successful.OK "Abount"
         )
+        path "/" >=> Redirection.redirect "index.html"
         browseHome
 //        path "/store" >=> (OK "Store")
 //        path "/store/browse" >=> browse
@@ -73,7 +74,7 @@ let webPart nfa =
     ]
 
 [<EntryPoint>]
-let main argv = 
+let main argv =
 //    let nfa = Automata.emptyNFA
 //              |> NFA.addTransition 0 Epsilon 1
 //              |> NFA.addTransition 1 (Char 'a') 2

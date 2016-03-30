@@ -16,6 +16,7 @@ module FParsecTrace =
     let emptyState = { Debug = {Message=""; Indent=0}}
     type P<'t> = Parser<'t, UserState>
 
+    [<NoComparison>]
     type DebugType<'a> = Enter | Leave of Reply<'a>
 
     let addToDebug (stream:CharStream<UserState>) label dtype =
@@ -61,18 +62,33 @@ module FParsecTrace =
 open FParsecTrace
 let parse s : ParserResult<Op,UserState> =
     let metachar = anyOf Thompson.Regex.metaChars |>> (Char>>Val) <!> "metachar"
-    let escapedMetaChar = (pchar '\\') >>. metachar 
+
+    let escapedMetaChar = (pchar '\\') >>. metachar
+
     let cha = anyOf ['a';'b';'c'] |>> (Char>>Val) <|> escapedMetaChar <!> "cha"
-    let elementaryRE = cha <!> "elementaryRE"
+
+    let group,groupImpl = createParserForwardedToRef()
+
+    let any = pchar '.' >>% Val Any
+
+    let elementaryRE = group <|> any <|> cha <!> "elementaryRE"
+
+
     let star = elementaryRE .>>? pchar '*' |>> Kleene <!> "star"
+
 (*        let plus = elementaryRE .>>? pchar '+' |>> Kleene *)
 //    let concat, concatImpl = createParserForwardedToRef()
     let basicRE = attempt star (*<|> plus*) <|> elementaryRE <!> "basicRE"
+
     let simpleRE = many1 basicRE |>> (fun l -> l.Tail |> List.fold (fun s x -> Concat(s,x)) l.Head) <!> "simpleRE"
+
 //    do concatImpl := simpleRE |>> (fun l -> Concat) <!> "concat"
     let union, unionImpl = createParserForwardedToRef()
+
     let re = attempt union <|> simpleRE <!> "re"
+
     do unionImpl := simpleRE .>>? pchar '|' .>>.? re |>> Union <!> "union"
+    do groupImpl := pchar '(' >>. re .>> pchar ')'
 
     let usedParser = re
     FParsec.CharParsers.runParserOnString usedParser emptyState "parse" s
