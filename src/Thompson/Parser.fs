@@ -71,14 +71,20 @@ let parse s : ParserResult<Op,UserState> =
 
     let any = pchar '.' >>% Val Any
 
-    let elementaryRE = group <|> any <|> cha <!> "elementaryRE"
+    let setItems = many1 cha |>> List.fold (fun s _x -> s) (Val Null)
+    let posSet = pchar '[' >>. setItems .>> pchar ']'
+    let negSet = pstring "[^" >>. setItems .>> pchar ']'
+    let set = posSet <|> negSet
+
+    let elementaryRE = group <|> any <|> cha <|> set <!> "elementaryRE"
 
 
     let star = elementaryRE .>>? pchar '*' |>> Kleene <!> "star"
 
-(*        let plus = elementaryRE .>>? pchar '+' |>> Kleene *)
+    let plus = elementaryRE .>>? pchar '+' |>> (fun r -> Concat(r, Kleene(r))) <!> "plus"
+    let questionMark = elementaryRE .>>? pchar '?' |>> (fun r -> Union(r, Val Null)) <!> "question mark"
 //    let concat, concatImpl = createParserForwardedToRef()
-    let basicRE = attempt star (*<|> plus*) <|> elementaryRE <!> "basicRE"
+    let basicRE = attempt star <|> attempt plus <|> attempt questionMark <|> elementaryRE <!> "basicRE"
 
     let simpleRE = many1 basicRE |>> (fun l -> l.Tail |> List.fold (fun s x -> Concat(s,x)) l.Head) <!> "simpleRE"
 
