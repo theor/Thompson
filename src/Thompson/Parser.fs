@@ -60,7 +60,9 @@ module FParsecTrace =
         p <?> label <!> label
 open FParsecTrace
 let parse s : ParserResult<Op,UserState> =
-    let cha = anyOf ['a';'b';'c'] |>> (Char>>Val) <!> "cha"
+    let metachar = anyOf Thompson.Regex.metaChars |>> (Char>>Val) <!> "metachar"
+    let escapedMetaChar = (pchar '\\') >>. metachar 
+    let cha = anyOf ['a';'b';'c'] |>> (Char>>Val) <|> escapedMetaChar <!> "cha"
     let elementaryRE = cha <!> "elementaryRE"
     let star = elementaryRE .>>? pchar '*' |>> Kleene <!> "star"
 (*        let plus = elementaryRE .>>? pchar '+' |>> Kleene *)

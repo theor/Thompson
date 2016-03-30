@@ -161,6 +161,7 @@
     <Compile Include="Tests.fs" />
     <Compile Include="StepDFATests.fs" />
     <Compile Include="ParserTests.fs" />
+    <Compile Include="RegexToMatch.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
   </ItemGroup>

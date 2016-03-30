@@ -46,11 +46,11 @@
   <ItemGroup>
     <Compile Include="Regex.fs" />
     <Compile Include="Automata.fs" />
+    <Compile Include="Parser.fs" />
     <Compile Include="Automatas.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <None Include="paket.template" />
-    <Compile Include="Parser.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

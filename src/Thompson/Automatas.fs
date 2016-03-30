@@ -2,7 +2,7 @@ namespace Thompson
 
 module Automatas =
     open Regex
-    let parse (_:string) : RegEx =
+    let parse (_:string) : RegExAst =
         Val Null
 
     let opandToNFA (o:Opand) : Automata.NFA option =
@@ -11,8 +11,8 @@ module Automatas =
 //        | Var v -> None
         | _ -> None
 
-    let toNFA (r:RegEx) : Automata.NFA option =
-        let rec toNFA_rec (n:int) (r:RegEx) : Automata.NFA option =
+    let toNFA (r:RegExAst) : Automata.NFA option =
+        let rec toNFA_rec (n:int) (r:RegExAst) : Automata.NFA option =
             match r with
             | Val v -> Automata.emptyNFA |> Automata.addTransition n v (n+1) |> Automata.addEndState (n+1) |> Some
             | Union(a, b) ->
@@ -145,3 +145,19 @@ module Automatas =
             dfa |> Automata.addEndState init |> Some
         else
             dfa |> Some
+
+    let regexStringToDfa s =
+        match Parser.parse(s) with
+        | FParsec.CharParsers.Success (a,b,c) -> a |> toNFA |> Option.bind epsilonRemoval
+        | _ -> None
+
+    type Regex(s:string) =
+        let dfa = regexStringToDfa s
+        member x.isMatch(input:string) =
+            match dfa with
+            | None -> false
+            | Some(n) -> Automata.isMatchDFA n input
+        static member isMatch (regex:string, input:string) =
+            match regexStringToDfa regex with
+            | None -> false
+            | Some n -> Automata.isMatchDFA n input
