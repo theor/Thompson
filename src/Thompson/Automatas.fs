@@ -7,7 +7,7 @@ module Automatas =
 
     let opandToNFA (o:Opand) : Automata.NFA option =
         match o with
-        | Char _ | Epsilon -> Automata.emptyNFA |> Automata.addTransition 0 o 1 |> Some
+        | Any | Char _ | Epsilon -> Automata.emptyNFA |> Automata.addTransition 0 o 1 |> Some
 //        | Var v -> None
         | _ -> None
 
@@ -44,7 +44,7 @@ module Automatas =
                n -> nfaEnd + 1
                nfaEnd -> nfaStart
             *)
-            | Kleene o -> 
+            | Kleene o ->
                 let nfa = toNFA_rec (n+1) o
                 let nEnd = nfa.Value.ends |> Set.maxElement
                 Automata.emptyNFA
@@ -60,9 +60,9 @@ module Automatas =
         //If the operand is a character c, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and a transition from s0 to sF with label c.
         //If the operand is epsilon, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and an epsilon transition from s0 to sF.
         //If the operand is null, then our FA has two states, s0 (the start state) and sF (the final, accepting state), and no transitions.
-        
+
     let rec closure(fsm:Automata.FSM<_>)(state:_)(op:Opand) : Set<_> =
-        
+
         let newStates =
             (if op = Epsilon then [state] else []) @
             Automata.stepState fsm op state |> Set
@@ -100,7 +100,7 @@ module Automatas =
                     |> Seq.collect id
                     |> Seq.map(fun s -> closure enfa s Epsilon)
                     |> Set.unionMany
-                    
+
             let ops = states |> Seq.collect (Automata.getTransitionsFrom enfa)
                              |> Seq.map fst
                              |> Seq.distinct
@@ -135,7 +135,7 @@ module Automatas =
                 else
                     dfa
             opandToTarget |> Seq.fold fold dfa
-//            let closures = states |> Seq.map 
+//            let closures = states |> Seq.map
         let init = closure nfa nfa.start Epsilon
         let dfa = Automata.emptyDFA
                   |> Automata.setInitState init

@@ -19,6 +19,7 @@ let nfaToJson (nfa:FSM<_> option) =
     let mapOpand (o:Opand) =
         match o with
         | Char c -> Some c
+        | Any -> Some '.'
         | _ -> None
 
     let mapTransition ((f,c),l:_ list) =

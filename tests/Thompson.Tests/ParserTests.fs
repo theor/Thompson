@@ -19,6 +19,11 @@ type Tcs() =
             [| "a\\+"; (Concat(c 'a', c '+')) |]
             [| "a\\*"; (Concat(c 'a', c '*')) |]
             [| "a(b|c)"; (Concat(c 'a', Union(c 'b', c 'c'))) |]
+            [| "."; Val Any |]
+            [| ".*"; Kleene(Val Any) |]
+            [| "\\.*"; Kleene(c '.') |]
+            [| "\\.\\*"; Concat(c '.', c '*') |]
+            [| "\\(\\)"; Concat(c '(', c ')') |]
 
         |]
 let test str expRegex =

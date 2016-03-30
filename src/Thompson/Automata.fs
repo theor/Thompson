@@ -42,7 +42,7 @@ module Automata =
 
     let addEndState (s) (n:FSM<_>) : FSM<_> =
         { n with ends = n.ends |> Set.add s }
-        
+
     let getTransitionsFrom<'T when 'T:comparison> (n:FSM<'T>) (from:'T) =
         n.transitions |> Map.filter (fun (f,_) _ -> f = from) |> Map.toList |> List.collect (fun ((_,o),tl) -> tl |> List.map (fun t -> (o,t)))
 
@@ -60,16 +60,17 @@ module Automata =
         curStates |> List.collect (stepState n o)
 
     let stepDFA (d:DFA) (o:Opand) (s:_) : _ option =
-        match d.transitions |> Map.tryFind (s,o) with
-        | None -> None
-        | Some (x :: []) -> Some x
-        | Some l -> failwithf "Non deterministic, transition %A,%A has multiple target states: %A" s o l
+        match d.transitions |> Map.tryFind (s,o), d.transitions |> Map.tryFind (s,Any) with
+        | None, Some (x::[]) -> Some x
+        | None,_ -> None
+        | Some (x :: []),_ -> Some x
+        | Some l,_ -> failwithf "Non deterministic, transition %A,%A has multiple target states: %A" s o l
 
     let isMatchDFA (n:DFA) (s:string) : bool =
         let folded = s |> Seq.fold (fun s c -> s |> Option.bind (stepDFA n (Char c))) (Some n.start)
         match folded with
         | None -> false
         | Some(s) ->  [s] |> isDone n
-        
+
     let isMatch (n:FSM<_>) (s:string) : bool =
         s |> Seq.fold (fun s c -> step n (Char c) s) (n.start :: []) |> isDone n
